@@ -102,6 +102,8 @@ Project for final submission – June 2025
 
 ## 📝 Note
 
+ Only Java is currently supported
+
 To deploy:
 - Place the folder under `webapps/` in Tomcat
 - Ensure `WEB-INF/web.xml` is correctly configured or use annotations(@)
