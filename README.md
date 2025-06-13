@@ -71,14 +71,7 @@ Supports multiple users, secure login, test case evaluation, and submission trac
 
 ------
 
-## 📝 Note
 
-To deploy:
-- Place the folder under `webapps/` in Tomcat
-- Ensure `WEB-INF/web.xml` is correctly configured
-- Make sure MySQL DB is up and running
-
----
 
 
 
