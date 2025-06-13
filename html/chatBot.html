@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PlayBot Chat</title>
+    <style>
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            padding: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .chatbot-box {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            max-height: 400px;
+            background: #1e1e1e;
+            color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px #000;
+            z-index: 999;
+            flex-direction: column;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 10px;
+            background: #007bff;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 250px;
+        }
+
+        .chat-body div {
+            margin-bottom: 10px;
+        }
+
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #444;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #222;
+            color: white;
+        }
+
+        .chat-input button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chatbot-toggle" onclick="toggleBot()">💬</div>
+
+    <div class="chatbot-box" id="chatBotBox">
+        <div class="chat-header">Ask PlayBot</div>
+        <div class="chat-body" id="chatBody"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Ask me something...">
+            <button onclick="sendQuestion()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleBot() {
+            const bot = document.getElementById("chatBotBox");
+            bot.style.display = (bot.style.display === "none" || bot.style.display === "") ? "flex" : "none";
+        }
+
+        function sendQuestion() {
+            const input = document.getElementById("userInput");
+            const text = input.value.trim();
+            if (!text) return;
+
+            const body = document.getElementById("chatBody");
+            body.innerHTML += `<div><b>You:</b> ${text}</div>`;
+            input.value = "";
+
+            fetch("/playCode/bot", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `question=${encodeURIComponent(text)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                body.innerHTML += `<div><b>Bot:</b> ${data.response}</div>`;
+                body.scrollTop = body.scrollHeight;
+            })
+            .catch(err => {
+                body.innerHTML += `<div><b>Bot:</b> Sorry, something went wrong.</div>`;
+            });
+        }
+    </script>
+
+</body>
+</html>
+

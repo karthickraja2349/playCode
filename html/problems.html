@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+  <title>Problems</title>
+      <link rel="stylesheet" href="../css/problems.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+  let problemsData = [];
+
+  fetch("/playCode/problems")
+    .then(response => {
+      if (!response.ok) {
+        alert("Not logged in or session expired");
+        window.location.href = "index.html";
+        return;
+      }
+      return response.json();
+    })
+    .then(data => {
+      problemsData = data;
+      renderProblems(problemsData);
+    });
+
+  function renderProblems(problems) {
+    const container = document.getElementById("problemList");
+    container.innerHTML = "";
+    problems.forEach(problem => {
+      const div = document.createElement("div");
+      div.className = "problem-card";
+      div.innerHTML = `
+        <h2>${problem.problem_id}</h2>
+        <h3>${problem.title} ${problem.solved ? "✅" : ""}</h3>
+       
+        <button onclick="solve(${problem.problem_id})">Solve</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  window.solve = function (pid) {
+    window.location.href = "editor.html?pid=" + pid;
+  };
+
+  document.getElementById("searchBox").addEventListener("input", function () {
+    const search = this.value.toLowerCase();
+    const filtered = problemsData.filter(p =>
+      p.title.toLowerCase().includes(search) || p.description.toLowerCase().includes(search)
+    );
+    renderProblems(filtered);
+  });
+});
+
+  </script>
+</head>
+<body>
+ 
+   <div class="page-container">
+    <div class="header">
+      <h1>Welcome! Choose a problem to solve:</h1>
+      <input type="text" id="searchBox" placeholder="Search problems..." />
+    </div>
+    <div id="problemList" class="problem-list"></div>
+  </div>
+
+</body>
+</html>
+

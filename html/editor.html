@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayCode</title>
+    <link rel="stylesheet" href="../css/editor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+     
+         <div class="split left">
+              <div class="left-container">
+                  <div class="question-section">
+                      <h2 id="questionTitle">Loading...</h2>
+                      <p id="questionDescription"></p>
+                </div>
+                <div class="testcase-section" id="testcases">
+                </div>
+           </div>
+      </div>
+     
+   <div class="split right">
+  <div class="editor-header">
+    <h2>Editor</h2>
+    <div class="editor-buttons">
+      <button id="runBtn"><i class="fa fa-play"></i> Run</button>
+      <button id="submitBtn"><i class="fa fa-paper-plane"></i> Submit</button>
+      <button id ="submissionsBtn"><i class="fa fa-shopping-basket" aria-hidden="true"></i>Submissions</button>
+    </div>
+  </div>
+  
+<div id="submissionsPanel"
+     style="display: none;
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 70%;
+            background: #1e1e1e;
+            color: white;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 1000;
+            border-radius: 10px;
+            border: 2px solid #555;">
+  <h3>Previous Submissions</h3>
+  <pre id="submissionsList" style="white-space: pre-wrap;"></pre>
+  <button onclick="document.getElementById('submissionsPanel').style.display='none'" style="margin-top: 10px;">Close</button>
+</div>
+
+
+
+
+
+  <div class="editor-body">
+    <textarea id="codeEditor" rows="10" cols="40">
+public void solve(Scanner sc){
+
+}
+    </textarea>
+
+    <div class="output-section" id="outputBox"> 
+    </div>
+  </div>
+</div>
+
+     
+    <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const problemId = urlParams.get("pid");
+
+            if (!problemId) {
+              alert("Problem ID not found!");
+              return;
+            }
+
+            fetch(`/playCode/problemDetails?pid=${problemId}`)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Problem not found or server error.");
+                }
+                return response.json();
+              })
+              .then(data => {
+               
+                document.getElementById("questionTitle").textContent = data.title;
+                document.getElementById("questionDescription").textContent = data.description;
+                
+           
+               document.getElementById("questionTitle").setAttribute("data-problem-id", problemId);
+
+                const tcContainer = document.getElementById("testcases");
+                tcContainer.innerHTML = "";
+
+                data.testcases.forEach((tc, idx) => {
+                       tcContainer.innerHTML += `<p><strong>Input ${idx + 1}:</strong> ${tc.input}<br><strong>Expected Output:</strong> ${tc.output}</p><hr>`;
+                });
+              })
+              .catch(err => {
+                console.error(err);
+                alert("Could not load problem details.");
+              });
+             
+             //run button
+            document.getElementById("runBtn").onclick = () => {
+            const code = document.getElementById("codeEditor").value;
+            const problemId = new URLSearchParams(window.location.search).get("pid");
+
+            if (!problemId) {
+                alert("Problem ID missing!");
+                return;
+            }
+
+            document.getElementById("outputBox").textContent = "Running...";
+
+            fetch("/playCode/RunCodeServlet", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `code=${encodeURIComponent(code)}&problemId=${encodeURIComponent(problemId)}`
+            })
+            .then(res => res.text())
+            .then(output => {
+                document.getElementById("outputBox").textContent = output;
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("outputBox").textContent = "Something went wrong.";
+            });
+        };
+     
+     //submit button
+      document.getElementById("submitBtn").onclick = () => {
+        const code = document.getElementById("codeEditor").value;
+        document.getElementById("outputBox").textContent = "Submitting...";
+
+        fetch("/playCode/submitServlet", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `problemId=${encodeURIComponent(problemId)}`
+        })
+        .then(res => res.text())
+        .then(output => {
+          document.getElementById("outputBox").textContent = output;
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("outputBox").textContent = "Something went wrong during submission.";
+        });
+      };       
+   });
+
+
+
+  document.getElementById("submissionsBtn").addEventListener("click", function () {
+    const problemId = document.getElementById("questionTitle").getAttribute("data-problem-id");
+
+    fetch("/playCode/SubmissionsServlet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "problemId=" + encodeURIComponent(problemId)
+    })
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("submissionsList").textContent = data;
+      document.getElementById("submissionsPanel").style.display = "block";
+    })
+    .catch(err => {
+      alert("Error loading submissions: " + err);
+    });
+  });
+
+    </script>
+</body>
+
+</html>

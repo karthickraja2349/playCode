@@ -1,0 +1,7 @@
+DJL is a deep learning library in Java that supports engines like PyTorch, MXNet, and TensorFlow.
+Lucene is a Java-based indexing and search library used for full-text search.
+JavaScript is a scripting language primarily used for creating interactive web applications.
+If you want to login, You need to create an account first with your mobile Number.
+After creating an account you need to set up your profile.
+Your profile will be safe and secured.
+After setting your profile, you can able to order.
