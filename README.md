@@ -80,10 +80,7 @@ To deploy:
 
 ---
 
-## 🙌 Author
 
-Created by **Karthick Raja K**  
-Project for final submission – June 2025
 
 ## 📂 Directory Structure (Example)
      playCode/
